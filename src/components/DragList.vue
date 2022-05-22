@@ -18,13 +18,16 @@ import ceo from '../ceoMock';
   },
 })
 export default class DragList extends Vue {
-  @Prop() ceoData!: EmployeeOrgApp;
+  ceoData!: EmployeeOrgApp;
+
+  beforeMount(): void {
+    this.ceoData = new EmployeeOrgApp(ceo);
+  }
 
   /* eslint-disable max-len */
   /* eslint-disable class-methods-use-this */
   /* eslint-disable no-restricted-globals */
   mounted(): void {
-    this.ceoData = new EmployeeOrgApp(ceo);
     console.log(this.ceoData);
     // let dragging: HTMLElement | null | false = null;
     let start: HTMLElement | null = null;
