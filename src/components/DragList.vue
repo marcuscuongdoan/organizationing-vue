@@ -1,8 +1,8 @@
 <template>
-  <ul>
-    <template v-if="ceoData.ceo.subordinates">
-      <EmployeeRender v-for="sub in ceoData.ceo.subordinates" v-bind:key="sub.uniqueId"
-                      v-bind:employee="sub" />
+  <ul ref="ul">
+    <template v-if="ceoData">
+      <EmployeeRender v-bind:key="ceoData.ceo.uniqueId"
+                      v-bind:employee="ceoData.ceo" />
     </template>
   </ul>
 </template>
@@ -30,10 +30,15 @@ export default class DragList extends Vue {
     let start: HTMLElement | null = null;
     let end: HTMLElement | null = null;
     function getLI(target: HTMLElement) {
-      if (target && target.nodeName.toLowerCase() === 'body') {
+      // if (target && target.nodeName.toLowerCase() === 'body') {
+      //   return false;
+      // }
+      // while (target && target.nodeName.toLowerCase() !== 'li' && target.nodeName.toLowerCase() !== 'body') {
+
+      if (target && target.id && Number.parseInt(target.id, 10) === 1) {
         return false;
       }
-      // while (target && target.nodeName.toLowerCase() !== 'li' && target.nodeName.toLowerCase() !== 'body') {
+
       while (target && target.nodeName.toLowerCase() !== 'ul' && target.nodeName.toLowerCase() !== 'li') {
         // eslint-disable-next-line no-param-reassign
         target = target.parentNode as HTMLElement;
@@ -42,7 +47,7 @@ export default class DragList extends Vue {
     }
 
     document.addEventListener('dragstart', (event) => {
-      const target = getLI(event.target as HTMLElement);
+      const target = (getLI(event.target as HTMLElement));
       // dragging = target;
       if (target && event) {
         start = target;
@@ -52,7 +57,7 @@ export default class DragList extends Vue {
 
     document.addEventListener('dragover', (event) => {
       event.preventDefault();
-      const target = getLI(event.target as HTMLElement);
+      const target = (getLI(event.target as HTMLElement));
       if (!target) return;
       const bounding = target.getBoundingClientRect();
       const offset = bounding.y + (bounding.height / 2);
@@ -66,7 +71,7 @@ export default class DragList extends Vue {
     });
 
     document.addEventListener('dragleave', (event) => {
-      const target = getLI(event.target as HTMLElement);
+      const target = (getLI(event.target as HTMLElement));
       if (target) {
         target.style.borderBottom = '';
         target.style.borderTop = '';
@@ -75,18 +80,29 @@ export default class DragList extends Vue {
 
     document.addEventListener('drop', (event) => {
       event.preventDefault();
-      const target = getLI(event.target as HTMLElement);
+      const target = (getLI(event.target as HTMLElement));
       if (!target) return;
       // this.ceoData.move(2, 10);
       end = target;
       if (target.parentNode && target.style.borderBottom !== '') {
         if (start && start.id) {
-          this.ceoData.move(Number.parseInt(start.id, 10), Number.parseInt(end.id, 10));
+          if (end.id) {
+            this.ceoData.move(Number.parseInt(start.id, 10), Number.parseInt(end.id, 10));
+          } else {
+            this.ceoData.move(Number.parseInt(start.id, 10), 1);
+          }
         }
         target.style.borderBottom = '';
         // target.parentNode.insertBefore(dragging, target.nextSibling);
       } else {
         console.log(target);
+        if (start && start.id) {
+          if (end.id) {
+            this.ceoData.move(Number.parseInt(start.id, 10), Number.parseInt(end.id, 10));
+          } else {
+            this.ceoData.move(Number.parseInt(start.id, 10), 1);
+          }
+        }
         target.style.borderTop = '';
         // target?.parentNode?.insertBefore(dragging, target);
       }
@@ -95,8 +111,14 @@ export default class DragList extends Vue {
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'z' && event.ctrlKey) console.log('ctrl z');
-      if (event.key === 'Z' && event.ctrlKey && event.shiftKey) console.log('ctrl shift z');
+      if (event.key === 'z' && event.ctrlKey) {
+        console.log('ctrl z', 'undo');
+        this.ceoData.undo();
+      }
+      if (event.key === 'Z' && event.ctrlKey && event.shiftKey) {
+        console.log('ctrl shift z');
+        this.ceoData.redo();
+      }
     });
   }
 }
@@ -106,6 +128,7 @@ ul {
   margin: 0;
   padding: 0;
   text-align: left;
+  border: 1px solid white;
 }
 
 li {

@@ -1,7 +1,7 @@
 <template>
     <div v-if="visible">
         <li key={{employee.uniqueId}}
-            draggable
+            v-bind:draggable="employee.uniqueId !== 1"
             v-bind:id="employee.uniqueId"
             class="info"
             ref="employee">
@@ -30,7 +30,7 @@ export default class EmployeeRender extends Vue {
     mounted(): void {
       function isVisible({ top, height }: { top: number, height: number}) {
         const offset = 50;
-        console.log(top + height + offset, top - offset, window.innerHeight);
+        // console.log(top + height + offset, top - offset, window.innerHeight);
         return (top + height + offset >= 0) && (top - offset <= window.innerHeight);
       }
 
@@ -41,7 +41,7 @@ export default class EmployeeRender extends Vue {
         });
         const scrollEvent = () => {
           this.visible = isVisible(ref.getBoundingClientRect());
-          console.log(this.employee.uniqueId, this.visible);
+          //   console.log(this.employee.uniqueId, this.visible);
           if (this.visible) {
             window.removeEventListener('scroll', scrollEvent);
           }
@@ -54,8 +54,18 @@ export default class EmployeeRender extends Vue {
 </script>
 <style>
 li.info {
-    border-bottom: solid 1px gray;
+    /* border: solid 1px gray; */
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px 0px rgba(0,0,0,0.5);
+    margin: 20px;
     cursor: pointer;
+}
+
+li#\31.info {
+    background: red;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 div {
